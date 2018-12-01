@@ -6,12 +6,23 @@ module Day01
 import qualified Data.Set as Set
 import Data.Set (Set)
 
-readInt :: String -> Int
-readInt ('+':s) = read s
-readInt s = read s
+import qualified Text.Megaparsec as P
+import qualified Text.Megaparsec.Char as P
+import qualified Text.Megaparsec.Char.Lexer as L
+import qualified Data.Text.IO as TIO
+import  Data.Text (Text)
+import  Data.Void (Void)
+
+numbers :: P.Parsec Void Text [Int]
+numbers = P.many ( L.signed (pure ()) L.decimal <* P.newline)
 
 nums :: IO [Int]
-nums = fmap readInt . lines <$> readFile "input/1.txt"
+nums = do
+  let f = "input/1.txt"
+  result <- P.parse numbers f <$> TIO.readFile f
+  case result of
+    Left e -> error (show e)
+    Right ns -> pure ns
 
 main :: IO ()
 main = do
