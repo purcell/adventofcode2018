@@ -1,20 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+
 module Day01
-    ( main
-    ) where
+  ( main
+  ) where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 
+import Data.Text (Text)
+import qualified Data.Text.IO as TIO
+import Data.Void (Void)
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
-import qualified Data.Text.IO as TIO
-import  Data.Text (Text)
-import  Data.Void (Void)
 
 numbers :: P.Parsec Void Text [Int]
-numbers = P.many ( L.signed (pure ()) L.decimal <* P.newline)
+numbers = P.many (L.signed (pure ()) L.decimal <* P.newline)
 
 nums :: IO [Int]
 nums = do
