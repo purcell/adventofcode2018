@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Day01
   ( main
   ) where
@@ -14,20 +12,19 @@ import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 
+parseFile :: Show e => P.Parsec e Text a -> String -> IO a
+parseFile p f = do
+  result <- P.parse p f <$> TIO.readFile f
+  case result of
+    Left e -> error (show e)
+    Right res -> pure res
+
 numbers :: P.Parsec Void Text [Int]
 numbers = P.many (L.signed (pure ()) L.decimal <* P.newline)
 
-nums :: IO [Int]
-nums = do
-  let f = "input/1.txt"
-  result <- P.parse numbers f <$> TIO.readFile f
-  case result of
-    Left e -> error (show e)
-    Right ns -> pure ns
-
 main :: IO ()
 main = do
-  ns <- nums
+  ns <- parseFile numbers "input/1.txt"
   putStrLn "Part 1:"
   print (sum ns)
   putStrLn "Part 2:"
