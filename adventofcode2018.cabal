@@ -20,7 +20,8 @@ source-repository head
 
 library
   exposed-modules:
-      Day01
+                  Day01
+                , Day02
   hs-source-dirs:
       src
   build-depends:
