@@ -3,6 +3,7 @@ module Parse
   , parseFile
   , Parser
   , signedInt
+  , L.decimal
   ) where
 
 import Data.Text (Text)
