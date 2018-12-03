@@ -3,11 +3,11 @@
 
 module Day03 where
 
-import Data.List (tails)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Parse as P
 import Parse (Parser)
+import qualified Util
 
 data Claim = Claim
   { cID :: String
@@ -52,9 +52,6 @@ parseClaim = do
 parseClaims :: Parser [Claim]
 parseClaims = P.many (parseClaim <* P.newline)
 
-distinctPairs :: [a] -> [(a, a)]
-distinctPairs xs = [(x, y) | (x:xs') <- tails xs, y <- xs']
-
 examples =
   P.unsafeParseString
     parseClaims
@@ -63,7 +60,7 @@ examples =
 part1 :: [Claim] -> Int
 part1 claims =
   Set.size $
-  Set.unions [overlap (cRect a) (cRect b) | (a, b) <- distinctPairs claims]
+  Set.unions [overlap (cRect a) (cRect b) | (a, b) <- Util.distinctPairs claims]
 
 part2 :: [Claim] -> Set String
 part2 claims = Set.fromList (cID <$> claims) `Set.difference` overlapping
@@ -71,7 +68,7 @@ part2 claims = Set.fromList (cID <$> claims) `Set.difference` overlapping
     overlapping =
       Set.unions
         [ Set.fromList [cID a, cID b]
-        | (a, b) <- distinctPairs claims
+        | (a, b) <- Util.distinctPairs claims
         , not (Set.null (overlap (cRect a) (cRect b)))
         ]
 
