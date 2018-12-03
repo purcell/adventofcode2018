@@ -15,10 +15,10 @@ data Claim = Claim
   }
 
 data Rect = Rect
-  { rLeft :: Int
-  , rTop :: Int
-  , rWidth :: Int
-  , rHeight :: Int
+  { rLeft :: !Int
+  , rTop :: !Int
+  , rWidth :: !Int
+  , rHeight :: !Int
   }
 
 overlap :: Rect -> Rect -> Set (Int, Int)
