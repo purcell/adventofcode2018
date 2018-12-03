@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Day03 where
@@ -10,7 +9,7 @@ import Parse (Parser)
 import qualified Util
 
 data Claim = Claim
-  { cID :: String
+  { cID :: Int
   , cRect :: Rect
   }
 
@@ -23,31 +22,21 @@ data Rect = Rect
 
 overlap :: Rect -> Rect -> Set (Int, Int)
 overlap r1 r2 =
-  let right r = rLeft r + rWidth r - 1
-      bottom r = rTop r + rHeight r - 1
-   in Set.fromList
-        [ (left, top)
-        | left <- [max (rLeft r1) (rLeft r2) .. min (right r1) (right r2)]
-        , top <- [max (rTop r1) (rTop r2) .. min (bottom r1) (bottom r2)]
-        ]
+  Set.fromList
+    [ (left, top)
+    | left <- [max (rLeft r1) (rLeft r2) .. min (right r1) (right r2)]
+    , top <- [max (rTop r1) (rTop r2) .. min (bottom r1) (bottom r2)]
+    ]
+  where
+    right r = rLeft r + rWidth r - 1
+    bottom r = rTop r + rHeight r - 1
 
 parseClaim :: Parser Claim
-parseClaim = do
-  P.char '#'
-  cID <- P.many P.digitChar
-  P.space
-  P.char '@'
-  P.space
-  rLeft <- P.decimal
-  P.char ','
-  rTop <- P.decimal
-  P.char ':'
-  P.space
-  rWidth <- P.decimal
-  P.char 'x'
-  rHeight <- P.decimal
-  let cRect = Rect {..}
-  pure Claim {..}
+parseClaim =
+  Claim <$> (P.char '#' *> P.decimal <* P.string " @ ") <*>
+  (Rect <$> (P.decimal <* P.char ',') <*> (P.decimal <* P.string ": ") <*>
+   (P.decimal <* P.char 'x') <*>
+   P.decimal)
 
 parseClaims :: Parser [Claim]
 parseClaims = P.many (parseClaim <* P.newline)
@@ -62,7 +51,7 @@ part1 claims =
   Set.size $
   Set.unions [overlap (cRect a) (cRect b) | (a, b) <- Util.distinctPairs claims]
 
-part2 :: [Claim] -> Set String
+part2 :: [Claim] -> Set Int
 part2 claims = Set.fromList (cID <$> claims) `Set.difference` overlapping
   where
     overlapping =
