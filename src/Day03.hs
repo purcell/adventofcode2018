@@ -23,19 +23,13 @@ data Rect = Rect
 
 overlap :: Rect -> Rect -> Set (Int, Int)
 overlap r1 r2 =
-  Set.fromList
-    [ (left, top)
-    | left <-
-        [max (rLeft r1) (rLeft r2) .. min
-                                        (rLeft r1 + rWidth r1)
-                                        (rLeft r2 + rWidth r2) -
-                                      1]
-    , top <-
-        [max (rTop r1) (rTop r2) .. min
-                                      (rTop r1 + rHeight r1)
-                                      (rTop r2 + rHeight r2) -
-                                    1]
-    ]
+  let right r = rLeft r + rWidth r - 1
+      bottom r = rTop r + rHeight r - 1
+   in Set.fromList
+        [ (left, top)
+        | left <- [max (rLeft r1) (rLeft r2) .. min (right r1) (right r2)]
+        , top <- [max (rTop r1) (rTop r2) .. min (bottom r1) (bottom r2)]
+        ]
 
 parseClaim :: Parser Claim
 parseClaim = do
@@ -62,7 +56,9 @@ distinctPairs :: [a] -> [(a, a)]
 distinctPairs xs = [(x, y) | (x:xs') <- tails xs, y <- xs']
 
 examples =
-  P.parse parseClaims "string" "#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2\n"
+  P.unsafeParseString
+    parseClaims
+    "#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2\n"
 
 part1 :: [Claim] -> Int
 part1 claims =

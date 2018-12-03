@@ -1,12 +1,14 @@
 module Parse
   ( module P
   , parseFile
+  , unsafeParseString
   , Parser
   , signedInt
   , L.decimal
   ) where
 
 import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Void (Void)
 import Text.Megaparsec as P
@@ -21,6 +23,12 @@ parseFile p f = do
   case result of
     Left e -> error (show e)
     Right res -> pure res
+
+unsafeParseString :: Show e => P.Parsec e Text a -> String -> a
+unsafeParseString p input =
+  case P.parse p "<string>" (T.pack input) of
+    Left e -> error (show e)
+    Right res -> res
 
 signedInt :: Parser Int
 signedInt = L.signed (pure ()) L.decimal
