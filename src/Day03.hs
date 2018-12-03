@@ -25,12 +25,16 @@ overlap :: Rect -> Rect -> Set (Int, Int)
 overlap r1 r2 =
   Set.fromList
     [ (left, top)
-    | left <- [rLeft r1 .. rLeft r1 + rWidth r1 - 1]
-    , top <- [rTop r1 .. rTop r1 + rHeight r1 - 1]
-    , left >= rLeft r2
-    , left < rLeft r2 + rWidth r2
-    , top >= rTop r2
-    , top < rTop r2 + rHeight r2
+    | left <-
+        [max (rLeft r1) (rLeft r2) .. min
+                                        (rLeft r1 + rWidth r1)
+                                        (rLeft r2 + rWidth r2) -
+                                      1]
+    , top <-
+        [max (rTop r1) (rTop r2) .. min
+                                      (rTop r1 + rHeight r1)
+                                      (rTop r2 + rHeight r2) -
+                                    1]
     ]
 
 parseClaim :: Parser Claim
