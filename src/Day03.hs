@@ -65,8 +65,20 @@ part1 claims =
   Set.size $
   Set.unions [overlap (cRect a) (cRect b) | (a, b) <- distinctPairs claims]
 
+part2 :: [Claim] -> Set String
+part2 claims = Set.fromList (cID <$> claims) `Set.difference` overlapping
+  where
+    overlapping =
+      Set.unions
+        [ Set.fromList [cID a, cID b]
+        | (a, b) <- distinctPairs claims
+        , not (Set.null (overlap (cRect a) (cRect b)))
+        ]
+
 main :: IO ()
 main = do
   claims <- P.parseFile parseClaims "input/3.txt"
   putStrLn "Part 1:"
   print (part1 claims)
+  putStrLn "Part 2:"
+  print (part2 claims)
