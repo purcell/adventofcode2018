@@ -4,12 +4,14 @@
 module Day04 where
 
 import Control.Applicative
+import Control.Arrow (second)
 import Data.List (maximumBy, sort)
 import qualified Data.Map.Strict as Map
 import Data.Map.Strict (Map)
 import Data.Ord (comparing)
 import qualified Parse as P
 import Parse (Parser)
+import Safe.Foldable (maximumByMay)
 import qualified Util
 
 newtype Minute =
@@ -40,17 +42,35 @@ parseNaps = P.some (Nap <$> guardNum <*> (concat <$> P.many (P.try nap)))
     time = P.decimal >> P.char ':' >> (Minute <$> P.decimal)
     timestamp = P.char '[' >> date >> P.space *> time <* P.string "] "
 
-minsAsleep :: [Nap] -> Map GuardNum [Minute]
+minsAsleep :: [Nap] -> [(GuardNum, Map Minute Int)]
 minsAsleep =
-  foldl (\map (Nap num mins) -> Map.insertWith (++) num mins map) Map.empty
+  Map.toList .
+  foldl
+    (\map (Nap num mins) ->
+       Map.insertWith (Map.unionWith (+)) num (Util.freqs mins) map)
+    Map.empty
 
 part1 :: [Nap] -> Int
 part1 naps = mostSleptMinute * guardNum
   where
+    sleepFreqs = minsAsleep naps
     (Minute mostSleptMinute) =
-      fst $ maximumBy (comparing snd) $ Map.toList $ Util.freqs sleepMins
+      fst (maximumBy (comparing snd) (Map.toList sleepMins))
     (GuardNum guardNum, sleepMins) =
-      maximumBy (comparing (length . snd)) $ Map.toList $ minsAsleep naps
+      maximumBy (comparing (sum . Map.elems . snd)) sleepFreqs
+
+part2 :: [Nap] -> Int
+part2 naps = mostSleptMinute * guardNum
+  where
+    sleepFreqs = minsAsleep naps
+    guardsAndSleepiestMinutes :: [(GuardNum, (Minute, Int))]
+    guardsAndSleepiestMinutes =
+      [ (guard, most)
+      | (guard, freqs) <- sleepFreqs
+      , Just most <- [maximumByMay (comparing snd) (Map.toList freqs)]
+      ]
+    (GuardNum guardNum, (Minute mostSleptMinute, _)) =
+      maximumBy (comparing (snd . snd)) guardsAndSleepiestMinutes
 
 main :: IO ()
 main = do
@@ -59,3 +79,5 @@ main = do
     readFile "input/4.txt"
   putStrLn "Part 1:"
   print $ part1 naps
+  putStrLn "Part 2:"
+  print $ part2 naps
