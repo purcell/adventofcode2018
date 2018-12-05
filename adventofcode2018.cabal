@@ -24,6 +24,7 @@ library
                 , Day02
                 , Day03
                 , Day04
+                , Day05
                 , Parse
                 , Util
   hs-source-dirs:
