@@ -17,7 +17,7 @@ reducePolymer = go ""
     go ps [] = reverse ps
 
 strip :: String -> Char -> String
-strip s c = filter (\x -> x /= c && (not ( shouldReduce x c))) s
+strip s c = filter (\x -> x /= toLower c && x /= toUpper c) s
 
 main :: IO ()
 main = do
