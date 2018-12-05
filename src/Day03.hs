@@ -33,9 +33,8 @@ overlap r1 r2 =
 
 parseClaim :: Parser Claim
 parseClaim =
-  Claim <$> (P.char '#' *> P.decimal <* P.string " @ ") <*>
-  (Rect <$> (P.decimal <* P.char ',') <*> (P.decimal <* P.string ": ") <*>
-   (P.decimal <* P.char 'x') <*>
+  Claim <$> ("#" *> P.decimal <* " @ ") <*>
+  (Rect <$> (P.decimal <* ",") <*> (P.decimal <* ": ") <*> (P.decimal <* "x") <*>
    P.decimal)
 
 parseClaims :: Parser [Claim]

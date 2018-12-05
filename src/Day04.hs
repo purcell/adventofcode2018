@@ -32,15 +32,14 @@ parseNaps = P.some (Nap <$> guardNum <*> (concat <$> P.many (P.try nap)))
     event :: Parser a -> Parser (Minute, a)
     event p = (,) <$> timestamp <*> (p <* P.newline)
     guardNum = snd <$> event beginShift
-    beginShift =
-      P.string "Guard #" *> (GuardNum <$> P.decimal) <* P.string " begins shift"
+    beginShift = "Guard #" *> (GuardNum <$> P.decimal) <* " begins shift"
     nap = do
-      (sleep, _) <- event (P.string "falls asleep")
-      (wake, _) <- event (P.string "wakes up")
+      (sleep, _) <- event "falls asleep"
+      (wake, _) <- event "wakes up"
       pure [sleep .. wake - 1]
     date = P.some (P.digitChar <|> P.char '-')
-    time = P.decimal >> P.char ':' >> (Minute <$> P.decimal)
-    timestamp = P.char '[' >> date >> P.space *> time <* P.string "] "
+    time = P.decimal >> ":" >> (Minute <$> P.decimal)
+    timestamp = "[" >> date >> P.space *> time <* "] "
 
 minsAsleep :: [Nap] -> [(GuardNum, Map Minute Int)]
 minsAsleep =
