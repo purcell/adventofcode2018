@@ -3,6 +3,7 @@ module Parse
   , parseFile
   , unsafeParseString
   , Parser
+  , ParserOf
   , signedInt
   , L.decimal
   ) where
@@ -15,7 +16,9 @@ import Text.Megaparsec as P
 import Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 
-type Parser a = P.Parsec Void Text a
+type ParserOf t = P.Parsec Void t
+
+type Parser a = ParserOf Text a
 
 parseFile :: Show e => P.Parsec e Text a -> String -> IO a
 parseFile p f = do
