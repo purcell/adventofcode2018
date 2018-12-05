@@ -16,8 +16,13 @@ reducePolymer = go ""
     go ps (n:ns) = go (n : ps) ns
     go ps [] = reverse ps
 
+strip :: String -> Char -> String
+strip s c = filter (\x -> x /= c && (not ( shouldReduce x c))) s
+
 main :: IO ()
 main = do
   polymer <- P.parseFile (P.some P.letterChar :: P.Parser String) "input/5.txt"
   putStrLn "Part 1:"
   print (length (reducePolymer polymer))
+  putStrLn "Part 2:"
+  print (minimum (length . reducePolymer . strip polymer <$> ['a' .. 'z']))
