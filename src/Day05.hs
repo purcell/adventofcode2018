@@ -7,14 +7,12 @@ shouldReduce :: Char -> Char -> Bool
 shouldReduce a b = a /= b && (a == toLower b || a == toUpper b)
 
 reducePolymer :: String -> String
-reducePolymer = go ""
+reducePolymer = foldr squish ""
   where
-    go (p:ps) (n:ns)
-      | shouldReduce p n = go ps ns
-    go ps (n:n':ns)
-      | shouldReduce n n' = go ps ns
-    go ps (n:ns) = go (n : ps) ns
-    go ps [] = reverse ps
+    squish a (b:xs)
+      | shouldReduce a b = xs
+      | otherwise = a:b:xs
+    squish a xs = a:xs
 
 strip :: String -> Char -> String
 strip s c = filter (\x -> x /= toLower c && x /= toUpper c) s
