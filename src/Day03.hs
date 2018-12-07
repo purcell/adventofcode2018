@@ -40,6 +40,7 @@ parseClaim =
 parseClaims :: Parser [Claim]
 parseClaims = P.many (parseClaim <* P.newline)
 
+examples :: [Claim]
 examples =
   P.unsafeParseString
     parseClaims

@@ -3,7 +3,6 @@ module Day01
   ) where
 
 import qualified Data.Set as Set
-import Data.Set (Set)
 
 import qualified Parse as P
 import Parse (Parser)

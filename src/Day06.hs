@@ -3,9 +3,9 @@
 module Day06 where
 
 import Control.Arrow ((&&&), second)
-import Data.Foldable (all, minimum, minimumBy)
+import Data.Foldable (all, maximum, minimum)
 import qualified Data.Ix as Ix
-import Data.List (maximum, minimum, sortOn)
+import Data.List (sortOn)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Linear.V2
@@ -35,7 +35,7 @@ bounds :: [Coord] -> Region
 bounds coords = (V2 minX minY, V2 maxX maxY)
   where
     xs = [x | (V2 x _) <- coords]
-    ys = [y | (V2 x y) <- coords]
+    ys = [y | (V2 _ y) <- coords]
     minX = minimum xs
     maxX = maximum xs
     minY = minimum ys

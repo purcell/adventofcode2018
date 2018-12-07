@@ -4,7 +4,6 @@
 module Day04 where
 
 import Control.Applicative
-import Control.Arrow (second)
 import Data.List (maximumBy, sort)
 import qualified Data.Map.Strict as Map
 import Data.Map.Strict (Map)
@@ -32,21 +31,22 @@ parseNaps = P.some (Nap <$> guardNum <*> (concat <$> P.many (P.try nap)))
     event :: Parser a -> Parser (Minute, a)
     event p = (,) <$> timestamp <*> (p <* P.newline)
     guardNum = snd <$> event beginShift
-    beginShift = "Guard #" *> (GuardNum <$> P.decimal) <* " begins shift"
+    beginShift = "Guard #" *> (GuardNum <$> int) <* " begins shift"
     nap = do
       (sleep, _) <- event "falls asleep"
       (wake, _) <- event "wakes up"
       pure [sleep .. wake - 1]
     date = P.some (P.digitChar <|> P.char '-')
-    time = P.decimal >> ":" >> (Minute <$> P.decimal)
+    time = int >> ":" >> (Minute <$> int)
+    int = P.decimal :: Parser Int
     timestamp = "[" >> date >> P.space *> time <* "] "
 
 minsAsleep :: [Nap] -> [(GuardNum, Map Minute Int)]
 minsAsleep =
   Map.toList .
   foldl
-    (\map (Nap num mins) ->
-       Map.insertWith (Map.unionWith (+)) num (Util.freqs mins) map)
+    (\m (Nap num mins) ->
+       Map.insertWith (Map.unionWith (+)) num (Util.freqs mins) m)
     Map.empty
 
 part1 :: [Nap] -> Int

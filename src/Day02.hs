@@ -7,8 +7,8 @@ import qualified Parse as P
 import Parse (Parser)
 import qualified Util
 
-ids :: Parser [String]
-ids = P.many (P.many P.letterChar <* P.newline)
+parseIDs :: Parser [String]
+parseIDs = P.many (P.many P.letterChar <* P.newline)
 
 inCommon :: Eq a => [a] -> [a] -> [a]
 inCommon a b = [x | (x, y) <- zip a b, x == y]
@@ -20,7 +20,7 @@ oneDifferent a b
 
 main :: IO ()
 main = do
-  ids <- P.parseFile ids "input/2.txt"
+  ids <- P.parseFile parseIDs "input/2.txt"
   putStrLn "Part 1:"
   let hasN n = filter (elem n . Map.elems) (Util.freqs <$> ids)
   print (length (hasN 2) * length (hasN 3))
