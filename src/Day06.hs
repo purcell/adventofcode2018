@@ -4,14 +4,10 @@ module Day06 where
 
 import Control.Arrow ((&&&), second)
 import Data.Foldable (all, minimum, minimumBy)
-import Data.Function (on)
-import qualified Data.Ix
 import qualified Data.Ix as Ix
-import Data.List (groupBy, maximum, minimum, nub, sort, sortOn)
+import Data.List (maximum, minimum, sortOn)
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Ord (comparing)
-import Data.Set (Set)
 import Linear.V2
 import qualified Parse as P
 
