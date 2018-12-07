@@ -26,6 +26,7 @@ library
                 , Day04
                 , Day05
                 , Day06
+                , Day07
                 , Parse
                 , Util
   hs-source-dirs:
@@ -33,6 +34,7 @@ library
   build-depends:
                 base >=4.7 && <5
               , containers
+              , fgl
               , megaparsec
               , safe
               , linear
