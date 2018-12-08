@@ -4,7 +4,7 @@ module Day07 where
 
 import Control.Arrow ((&&&))
 import Data.Char (ord)
-import Data.List ((\\), sortOn)
+import Data.List (partition, sortOn)
 import Data.Maybe (fromMaybe)
 import qualified Parse as P
 import Safe (minimumMay)
@@ -32,14 +32,13 @@ part2 nworkers fixedDelay = go [] 0
       | G.isEmpty gr = time
     go allocs time gr = go allocs' time' gr'
       where
-        done = filter ((<= time) . snd) allocs
+        (done, continuingAllocs) = partition ((<= time) . snd) allocs
         gr' = G.delNodes (sNode . fst <$> done) gr
-        continuingAllocs = allocs \\ done
-        alreadyWorkingOn s = s `elem` fmap fst allocs
+        isAllocated s = s `elem` fmap fst allocs
         nexts =
           take
             (nworkers - length continuingAllocs)
-            (filter (not . alreadyWorkingOn) (avail gr'))
+            (filter (not . isAllocated) (avail gr'))
         allocs' = fmap (id &&& newTime) nexts ++ continuingAllocs
         newTime s = time + fixedDelay + (ord (sName s) - ord 'A' + 1)
         time' = fromMaybe time (minimumMay (snd <$> allocs'))
