@@ -4,29 +4,56 @@ module Day07 where
 
 import Control.Arrow ((&&&))
 import Data.Char (ord)
-import Data.List (sortOn)
+import Data.List ((\\), sortOn)
+import Data.Maybe (fromMaybe)
 import qualified Parse as P
+import Safe (minimumMay)
 
 import qualified Data.Graph.Inductive.Graph as G
 import qualified Data.Graph.Inductive.PatriciaTree as GPT
 
 type StepGraph = GPT.Gr Char ()
 
+data Step = Step
+  { sName :: Char
+  , sNode :: G.Node
+  } deriving (Eq, Show)
+
 toGraph :: [(Char, Char)] -> StepGraph
 toGraph links = G.mkGraph nodes edges
   where
-    nodes :: [(Int, Char)]
     nodes = (ord &&& id) <$> (fmap fst links ++ fmap snd links)
     edges = (\(a, b) -> (ord a, ord b, ())) <$> links
 
-stepOrder :: [(Char, Char)] -> String
-stepOrder = go . toGraph
+part2 :: Int -> Int -> StepGraph -> Int
+part2 nworkers fixedDelay = go [] 0
   where
-    go gr =
-      case sortOn G.lab' (avail gr) of
-        [] -> []
-        (ctx:_) -> G.lab' ctx : go (G.delNode (G.node' ctx) gr)
-    avail g = G.context g <$> G.nodes (G.nfilter (null . G.inn g) g)
+    go _ time gr
+      | G.isEmpty gr = time
+    go allocs time gr = go allocs' time' gr'
+      where
+        done = filter ((<= time) . snd) allocs
+        gr' = G.delNodes (sNode . fst <$> done) gr
+        continuingAllocs = allocs \\ done
+        alreadyWorkingOn s = s `elem` fmap fst allocs
+        nexts =
+          take
+            (nworkers - length continuingAllocs)
+            (filter (not . alreadyWorkingOn) (avail gr'))
+        allocs' = fmap (id &&& newTime) nexts ++ continuingAllocs
+        newTime s = time + fixedDelay + (ord (sName s) - ord 'A' + 1)
+        time' = fromMaybe time (minimumMay (snd <$> allocs'))
+
+stepOrder :: StepGraph -> String
+stepOrder gr =
+  case avail gr of
+    [] -> []
+    (s:_) -> sName s : stepOrder (G.delNode (sNode s) gr)
+
+avail :: StepGraph -> [Step]
+avail g = sortOn sName $ toStep <$> G.nodes (G.nfilter (null . G.inn g) g)
+  where
+    toStep n = Step (G.lab' (G.context g n)) n
 
 parseConstraint :: P.Parser (Char, Char)
 parseConstraint =
@@ -47,6 +74,9 @@ example =
 
 main :: IO ()
 main = do
-  constraints <- P.parseFile (P.some parseConstraint <* P.eof) "input/7.txt"
+  graph <-
+    toGraph <$> P.parseFile (P.some parseConstraint <* P.eof) "input/7.txt"
   putStrLn "Part 1:"
-  putStrLn (stepOrder constraints)
+  putStrLn (stepOrder graph)
+  putStrLn "Part 2:"
+  print (part2 5 60 graph)
