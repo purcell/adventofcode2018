@@ -44,11 +44,11 @@ part2 nworkers fixedDelay = go [] 0
         newTime s = time + fixedDelay + (ord (sName s) - ord 'A' + 1)
         time' = fromMaybe time (minimumMay (snd <$> allocs'))
 
-stepOrder :: StepGraph -> String
-stepOrder gr =
+part1 :: StepGraph -> String
+part1 gr =
   case avail gr of
     [] -> []
-    (s:_) -> sName s : stepOrder (G.delNode (sNode s) gr)
+    (s:_) -> sName s : part1 (G.delNode (sNode s) gr)
 
 avail :: StepGraph -> [Step]
 avail g = sortOn sName $ toStep <$> G.nodes (G.nfilter (null . G.inn g) g)
@@ -77,6 +77,6 @@ main = do
   graph <-
     toGraph <$> P.parseFile (P.some parseConstraint <* P.eof) "input/7.txt"
   putStrLn "Part 1:"
-  putStrLn (stepOrder graph)
+  putStrLn (part1 graph)
   putStrLn "Part 2:"
   print (part2 5 60 graph)
